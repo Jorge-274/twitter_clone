@@ -12,7 +12,6 @@ cd tu-repo
 2. Crear el entorno virtual con Conda
 conda create -n env-x python=3.12
 conda activate env-x
-conda activate env-x
 3. Instalar las dependencias
 pip install -r requirements.txt
 4. Configurar el proyecto Django
