@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-py">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +11,12 @@
     <!-- Configuración personalizada de Tailwind -->
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         twitter: {
                             blue: '#1DA1F2',
-                            dark: '#000000',  // Cambiado a negro puro
+                            dark: '#14171A',
                             light: '#AAB8C2',
                             extraLight: '#E1E8ED',
                             extraExtraLight: '#F5F8FA',
@@ -28,26 +27,24 @@
         }
     </script>
 
-    <!-- Para usar componentes de formularios con Tailwind -->
+    <!-- Formularios bonitos -->
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 </head>
-<body class="bg-black text-white">  <!-- Cambiado a fondo negro y texto blanco -->
-    {% include 'partials/navbar.html' %}
+<body class="bg-black min-h-screen">
 
-    <div class="container mx-auto px-4 py-8 bg-black">  <!-- Añadido bg-black aquí -->
-        {% if messages %}
+    {% if messages %}
+        <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-2">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
+                <div class="bg-gray-800 text-white px-4 py-2 rounded shadow">
                     {{ message }}
                 </div>
             {% endfor %}
-        {% endif %}
+        </div>
+    {% endif %}
 
-        {% block content %}{% endblock %}
-    </div>
-
-    {% include 'partials/footer.html' %}
+    {% block content %}{% endblock %}
 
     {% block scripts %}{% endblock %}
+
 </body>
 </html>

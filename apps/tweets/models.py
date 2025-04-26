@@ -17,3 +17,12 @@ class Tweet(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.content[:20]}..."
+
+
+class TweetFiles(models.Model):
+    tweet = models.ForeignKey(Tweet, on_delete=models.CASCADE)
+    archivos = models.FileField(upload_to='tweets_file/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

@@ -4,6 +4,37 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from apps.tweets.models import Tweet
 from apps.users.models import User, UserFollow
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from .forms import LoginForm
+
+
+@require_http_methods(["GET", "POST"])
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"¡Bienvenido de nuevo, @{username}!")
+                next_url = request.GET.get('next', 'home')
+                return redirect(next_url)
+            else:
+                messages.error(request, "Usuario o contraseña incorrectos")
+    else:
+        form = LoginForm()
+
+    return render(request, 'users/login.html', {'form': form})
+
 
 
 def users_home(request):
@@ -66,3 +97,30 @@ def unfollow_user(request, username):
             messages.warning(request, f"No estabas siguiendo a @{username}")
 
     return redirect('profile', username=username)
+
+
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from .forms import UserRegistrationForm
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+
+        if form.is_valid():
+            # Crear el usuario
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])
+            user.save()
+
+            # Loguear al usuario después del registro
+            login(request, user)
+
+            return redirect('home')  # O la página a la que quieras redirigir al usuario
+
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'register.html', {'form': form})

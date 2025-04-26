@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+
+from apps.users.models import User
 
 
 class RegisterForm(UserCreationForm):
@@ -22,3 +23,43 @@ class RegisterForm(UserCreationForm):
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("Este nombre de usuario ya está en uso.")
         return username
+
+
+from django import forms
+
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        label="Nombre de usuario",
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border rounded-md',
+            'placeholder': 'Tu nombre de usuario'
+        })
+    )
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border rounded-md',
+            'placeholder': 'Tu contraseña'
+        })
+    )
+
+
+# forms.py
+from django import forms
+
+
+class UserRegistrationForm(forms.ModelForm):
+    password1 = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if password1 != password2:
+            raise forms.ValidationError("Las contraseñas no coinciden.")
+        return password2

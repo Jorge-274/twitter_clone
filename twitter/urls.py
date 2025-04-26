@@ -22,8 +22,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.core.urls')),
-    path('', include('apps.users.urls')),
-    path('', include('apps.tweets.urls')),
+    path('accounts/', include('apps.users.urls')),
+    path('tweets/', include('apps.tweets.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
