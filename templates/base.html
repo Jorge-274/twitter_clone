@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Clone - {% block title %}{% endblock %}</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Opcional: Configuración personalizada de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        twitter: {
+                            blue: '#1DA1F2',
+                            dark: '#14171A',
+                            light: '#AAB8C2',
+                            extraLight: '#E1E8ED',
+                            extraExtraLight: '#F5F8FA',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Para usar componentes de formularios con Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+</head>
+<body class="bg-gray-100">
+    {% include 'partials/navbar.html' %}
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% include 'partials/footer.html' %}
+
+    {% block scripts %}{% endblock %}
+
+
+
+</body>
+</html>

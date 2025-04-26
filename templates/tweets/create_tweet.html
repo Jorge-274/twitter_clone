@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Crear un nuevo Tweet</h2>
+    
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        
+        <div>
+            <label for="content" class="block text-sm font-medium text-gray-700">¿Qué está pasando?</label>
+            <textarea id="content" name="content" rows="3" maxlength="280"
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-twitter-blue focus:border-twitter-blue"
+                      placeholder="Escribe tu tweet aquí (máx. 280 caracteres)"></textarea>
+            <p class="mt-1 text-sm text-gray-500 text-right">
+                <span id="char-count">0</span>/280 caracteres
+            </p>
+        </div>
+        
+        <div class="flex justify-end">
+            <button type="submit" 
+                    class="bg-twitter-blue text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-twitter-blue">
+                Publicar Tweet
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Contador de caracteres
+    document.getElementById('content').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('char-count').textContent = count;
+        
+        if (count > 250) {
+            document.getElementById('char-count').classList.add('text-red-500');
+        } else {
+            document.getElementById('char-count').classList.remove('text-red-500');
+        }
+    });
+</script>
+{% endblock %}
