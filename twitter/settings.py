@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'tailwind',
     # 'theme',
+    'rest_framework',
     'django_quill',
+    'corsheaders',
     'django_prose_editor',
     'apps.users',
     'apps.tweets',
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -167,3 +170,12 @@ QUILL_CONFIGS = {
         }
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        # 'rest_framework_datatables.renderers.DatatablesRenderer',  # <-- Esta línea es la que da error
+    ),
+}
+

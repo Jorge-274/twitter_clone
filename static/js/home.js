@@ -11,6 +11,24 @@ function autoResize(textarea) {
     button.classList.toggle('opacity-50', isEmpty);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarButton = document.getElementById('avatarButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    if (avatarButton && dropdownMenu) {
+        avatarButton.addEventListener('click', function(event) {
+            event.stopPropagation(); // Evita que el click propague al document
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!dropdownMenu.contains(event.target) && !avatarButton.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+});
+
 // Eliminar HTML de un string
 function stripHtml(html) {
     const div = document.createElement('div');
