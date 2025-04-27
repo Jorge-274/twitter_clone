@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-)6my$kpt1nbg)sy0wssn^b)lp2k0pe&1m4k3suxfq3oatn#=ji
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'tailwind',
     # 'theme',
+    'django_quill',
+    'django_prose_editor',
     'apps.users',
     'apps.tweets',
     'apps.core',
@@ -150,3 +152,18 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Configuración para Quill
+QUILL_CONFIGS = {
+    'default': {
+        'theme': 'snow',
+        'modules': {
+            'toolbar': [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    }
+}
