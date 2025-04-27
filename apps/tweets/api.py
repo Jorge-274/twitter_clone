@@ -14,26 +14,21 @@ def api_create_tweet(request):
 
     try:
         raw_content = request.POST.get('content', '').strip()
-        print(raw_content, type(raw_content))
+        print(raw_content, type(raw_content), "puta madre")
 
         if not raw_content:
             return JsonResponse({'status': 'error', 'message': 'El contenido no puede estar vacío'}, status=400)
 
-        # # Si recibimos Quill JSON, ignorarlo y trabajar como texto plano
-        # try:
-        #     content_data = json.loads(raw_content)
-        #     plain_text = ''.join(op['insert'] for op in content_data.get('ops', []) if isinstance(op.get('insert'), str))
-        # except (json.JSONDecodeError, KeyError, TypeError):
-        #     plain_text = raw_content
 
-        # Ahora convertimos el texto plano a HTML sencillo
-        safe_text = escape(raw_content).replace("\n", "<br>")  # Escapar y mantener saltos de línea
-        content_html = f"<p>{safe_text}</p>"
+        print("llego aqui 2")
 
         tweet = Tweet.objects.create(
             user=request.user,
-            content=content_html  # GUARDAMOS HTML
+            content=raw_content  # GUARDAMOS HTML
         )
+
+        print("llego aqui3")
+
 
         for file in request.FILES.getlist('media'):
             TweetFiles.objects.create(
@@ -41,6 +36,8 @@ def api_create_tweet(request):
                 file=file,
                 file_type=file.content_type.split('/')[0]
             )
+
+        print("llego aqui4")
 
         return JsonResponse({
             'status': 'success',

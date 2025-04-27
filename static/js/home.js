@@ -145,20 +145,12 @@ async function handleTweetSubmit(e) {
     e.preventDefault();
 
     const textarea = document.getElementById('tweet-text');
-    let content = textarea.value.trim();
+    let content = textarea.value.trim(); // <<-- solo tomamos el valor del textarea tal cual
     const mediaFiles = document.getElementById('media-upload').files;
 
-    if (!content.startsWith('{') || !content.endsWith('}')) {
-        const plainText = stripHtml(content);
-        content = JSON.stringify({ ops: [{ insert: plainText + '\n' }] });
-    } else {
-        try {
-            const parsed = JSON.parse(content);
-            if (!parsed.ops) throw new Error('Malformed Quill JSON');
-        } catch {
-            const plainText = stripHtml(content);
-            content = JSON.stringify({ ops: [{ insert: plainText + '\n' }] });
-        }
+    if (!content) {
+        alert('No puedes enviar un tweet vacío.');
+        return;
     }
 
     try {
@@ -183,6 +175,7 @@ async function handleTweetSubmit(e) {
         alert('Error al conectar con el servidor.');
     }
 }
+
 
 // ================== EVENTOS ==================
 
