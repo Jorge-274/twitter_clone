@@ -6,6 +6,7 @@ from django_quill.fields import QuillField
 class Tweet(models.Model):
     user = models.ForeignKey(User, related_name='tweets', on_delete=models.CASCADE)
     content = QuillField()  # Editor de texto enriquecido con formato, imágenes, etc.
+    plain_content = models.TextField(null=True, blank=True)  # Almacena el texto plano para búsquedas
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='liked_tweets', blank=True)
     retweets = models.ManyToManyField(User, related_name='retweeted_tweets', blank=True)

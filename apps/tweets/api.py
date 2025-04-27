@@ -2,9 +2,9 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-
 from apps.tweets.models import Tweet, TweetFiles
 
+from django.utils.html import escape
 
 @csrf_exempt
 @require_POST
@@ -13,44 +13,29 @@ def api_create_tweet(request):
         return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=401)
 
     try:
-        # Obtener el contenido crudo
         raw_content = request.POST.get('content', '').strip()
+        print(raw_content, type(raw_content))
 
-        # Convertir texto plano a formato Quill JSON válido
-        if not raw_content.startswith('{') or not raw_content.endswith('}'):
-            # Si no es JSON, convertirlo a formato Quill básico
-            quill_content = {
-                "ops": [{
-                    "insert": raw_content + "\n"
-                }]
-            }
-            content = json.dumps(quill_content)
-        else:
-            # Si parece JSON, validarlo
-            try:
-                parsed = json.loads(raw_content)
-                content = raw_content  # Mantener el JSON original
-            except json.JSONDecodeError:
-                # Si el JSON es inválido, convertirlo a formato Quill
-                quill_content = {
-                    "ops": [{
-                        "insert": raw_content + "\n"
-                    }]
-                }
-                content = json.dumps(quill_content)
-
-        # Validar que el contenido no esté vacío
-        if not content or content == '{"ops": [{"insert": "\\n"}]}':
+        if not raw_content:
             return JsonResponse({'status': 'error', 'message': 'El contenido no puede estar vacío'}, status=400)
 
-        # Crear el tweet
+        # # Si recibimos Quill JSON, ignorarlo y trabajar como texto plano
+        # try:
+        #     content_data = json.loads(raw_content)
+        #     plain_text = ''.join(op['insert'] for op in content_data.get('ops', []) if isinstance(op.get('insert'), str))
+        # except (json.JSONDecodeError, KeyError, TypeError):
+        #     plain_text = raw_content
+
+        # Ahora convertimos el texto plano a HTML sencillo
+        safe_text = escape(raw_content).replace("\n", "<br>")  # Escapar y mantener saltos de línea
+        content_html = f"<p>{safe_text}</p>"
+
         tweet = Tweet.objects.create(
             user=request.user,
-            content=content
+            content=content_html  # GUARDAMOS HTML
         )
 
-        # Procesar archivos multimedia
-        for file in request.FILES.values():
+        for file in request.FILES.getlist('media'):
             TweetFiles.objects.create(
                 tweet=tweet,
                 file=file,
@@ -67,5 +52,4 @@ def api_create_tweet(request):
         return JsonResponse({
             'status': 'error',
             'message': f"Error en el servidor: {str(e)}",
-            'received_content': raw_content
         }, status=500)
