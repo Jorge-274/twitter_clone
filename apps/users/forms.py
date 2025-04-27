@@ -63,3 +63,26 @@ class UserRegistrationForm(forms.ModelForm):
         if password1 != password2:
             raise forms.ValidationError("Las contraseñas no coinciden.")
         return password2
+
+
+from django import forms
+from django.contrib.auth.forms import UserChangeForm
+from .models import User
+
+
+class ProfileEditForm(UserChangeForm):
+    # Eliminamos los campos que no queremos que se puedan editar
+    password = None
+
+    class Meta:
+        model = User
+        fields = ['full_name', 'username', 'email', 'profile_picture', 'bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Personalizamos los campos
+        self.fields['email'].required = True
+        self.fields['full_name'].required = True

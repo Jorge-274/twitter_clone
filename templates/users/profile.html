@@ -1,72 +1,147 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ profile_user.full_name }} (@{{ profile_user.username }}) - Twitter Clone{% endblock %}
+
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow overflow-hidden">
-    <!-- Banner y avatar -->
-    <div class="bg-twitter-blue h-32 relative">
-        <div class="absolute -bottom-16 left-4">
-            <img src="{{ profile_user.profile_picture.url|default:'https://via.placeholder.com/150' }}" 
-                 alt="Avatar" 
-                 class="w-32 h-32 rounded-full border-4 border-white">
+<div class="w-full md:w-[600px] border-x border-gray-700 min-h-screen">
+    <!-- Encabezado del perfil -->
+    <div class="sticky top-0 z-10 bg-black bg-opacity-90 backdrop-blur-sm p-4 border-b border-gray-700">
+        <div class="flex items-center space-x-6">
+            <a href="{% url 'home' %}" class="text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-xl font-bold">{{ profile_user.full_name }}</h1>
+                <p class="text-gray-500 text-sm">{{ tweets.count }} Tweets</p>
+            </div>
         </div>
     </div>
-    
-    <!-- Información del usuario -->
-    <div class="pt-20 px-6 pb-4">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h1 class="text-2xl font-bold">{{ profile_user.full_name }}</h1>
-                <p class="text-gray-600">@{{ profile_user.username }}</p>
+
+    <!-- Banner y avatar -->
+    <div class="relative">
+        <div class="h-48 bg-gray-700 w-full"></div>
+        <div class="absolute -bottom-16 left-4">
+            <img src="{{ profile_user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
+                 alt="Avatar"
+                 class="w-32 h-32 rounded-full border-4 border-black object-cover">
+        </div>
+
+        {% if user == profile_user %}
+            <div class="absolute right-4 bottom-4">
+                <a href="{% url 'edit_profile' %}" class="bg-black bg-opacity-50 text-white px-4 py-1 rounded-full border border-gray-600 hover:bg-gray-800 transition">
+                    Editar perfil
+                </a>
             </div>
-            
-            {% if user.is_authenticated and user != profile_user %}
+        {% else %}
+            <div class="absolute right-4 bottom-4">
                 <form action="{% if is_following %}{% url 'unfollow_user' username=profile_user.username %}{% else %}{% url 'follow_user' username=profile_user.username %}{% endif %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" 
-                            class="{% if is_following %}bg-white text-twitter-blue border border-twitter-blue{% else %}bg-twitter-blue text-white{% endif %} px-4 py-1 rounded-full font-bold hover:bg-opacity-90 transition">
+                    <button type="submit"
+                            class="{% if is_following %}bg-black text-white border border-gray-600{% else %}bg-white text-black{% endif %} px-4 py-1.5 rounded-full font-bold hover:bg-opacity-90 transition">
                         {% if is_following %}Siguiendo{% else %}Seguir{% endif %}
                     </button>
                 </form>
-            {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Información del usuario -->
+    <div class="mt-16 px-4 pb-4">
+        <div class="mb-4">
+            <h1 class="text-xl font-bold">{{ profile_user.full_name }}</h1>
+            <p class="text-gray-500">@{{ profile_user.username }}</p>
         </div>
-        
+
         <p class="mb-4">{{ profile_user.bio|default:"Este usuario no tiene biografía." }}</p>
-        
+
         <!-- Seguidores/Siguiendo -->
         <div class="flex space-x-4 text-sm mb-6">
             <a href="{% url 'following_list' username=profile_user.username %}" class="hover:underline">
-                <span class="font-bold">{{ profile_user.following.count }}</span> Siguiendo
+                <span class="font-bold text-white">{{ profile_user.following.count }}</span> <span class="text-gray-500">Siguiendo</span>
             </a>
             <a href="{% url 'followers_list' username=profile_user.username %}" class="hover:underline">
-                <span class="font-bold">{{ profile_user.followers.count }}</span> Seguidores
+                <span class="font-bold text-white">{{ profile_user.followers.count }}</span> <span class="text-gray-500">Seguidores</span>
             </a>
         </div>
     </div>
-    
+
+    <!-- Pestañas -->
+    <div class="flex border-b border-gray-700">
+        <a href="#" class="flex-1 text-center py-4 font-bold border-b-4 border-twitter-blue">Tweets</a>
+        <a href="#" class="flex-1 text-center py-4 text-gray-500 hover:bg-gray-900">Respuestas</a>
+        <a href="#" class="flex-1 text-center py-4 text-gray-500 hover:bg-gray-900">Media</a>
+        <a href="#" class="flex-1 text-center py-4 text-gray-500 hover:bg-gray-900">Likes</a>
+    </div>
+
     <!-- Tweets del usuario -->
-    <div class="border-t border-gray-200">
-        <h2 class="px-6 py-3 font-bold text-lg">Tweets</h2>
-        
+    <div>
         {% for tweet in tweets %}
-            <div class="border-t border-gray-200 px-6 py-4 hover:bg-gray-50 transition">
-                <div class="flex items-start space-x-3">
-                    <img src="{{ tweet.user.profile_picture.url|default:'https://via.placeholder.com/40' }}" 
-                         alt="Avatar" 
-                         class="w-10 h-10 rounded-full">
+            <div class="border-b border-gray-700 p-4 hover:bg-gray-900 transition cursor-pointer">
+                <div class="flex space-x-3">
+                    <a href="{% url 'profile' username=tweet.user.username %}">
+                        <img src="{{ tweet.user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
+                             alt="Avatar"
+                             class="w-12 h-12 rounded-full object-cover">
+                    </a>
                     <div class="flex-1">
                         <div class="flex items-center space-x-1">
-                            <span class="font-bold">{{ tweet.user.full_name }}</span>
+                            <a href="{% url 'profile' username=tweet.user.username %}" class="font-bold hover:underline">{{ tweet.user.full_name }}</a>
                             <span class="text-gray-500">@{{ tweet.user.username }}</span>
                             <span class="text-gray-500">·</span>
                             <span class="text-gray-500">{{ tweet.created_at|timesince }}</span>
                         </div>
-                        <p class="mt-1">{{ tweet.content }}</p>
+                        <p class="mt-1 text-white">{{ tweet.content }}</p>
+
+                        <!-- Mostrar imágenes adjuntas -->
+                        {% if tweet.media_files.all %}
+                        <div class="mt-3 grid grid-cols-2 gap-2 rounded-xl overflow-hidden">
+                            {% for media in tweet.media_files.all %}
+                                {% if media.file_type == 'image' %}
+                                <div class="relative">
+                                    <img src="{{ media.file.url }}"
+                                         alt="Tweet media"
+                                         class="w-full h-48 object-cover rounded-lg">
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Acciones del tweet -->
+                        <div class="flex justify-between mt-3 text-gray-500 max-w-md">
+                            <button class="flex items-center space-x-1 hover:text-twitter-blue">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>{{ tweet.replies.count }}</span>
+                            </button>
+                            <button class="flex items-center space-x-1 hover:text-twitter-blue">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <span>{{ tweet.retweets.count }}</span>
+                            </button>
+                            <button class="flex items-center space-x-1 hover:text-twitter-blue">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>{{ tweet.likes.count }}</span>
+                            </button>
+                            <button class="flex items-center space-x-1 hover:text-twitter-blue">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <div class="px-6 py-8 text-center text-gray-500">
-                Este usuario no ha publicado ningún tweet todavía.
+            <div class="p-8 text-center text-gray-500">
+                <p class="text-xl font-bold mb-2">@{{ profile_user.username }} no ha publicado ningún Tweet</p>
+                <p>Cuando lo haga, aparecerán aquí.</p>
             </div>
         {% endfor %}
     </div>

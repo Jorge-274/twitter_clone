@@ -1,10 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}{{ profile_user.full_name }} (@{{ profile_user.username }}) - Seguidores | Twitter Clone{% endblock %}
+
+{% block content %}
+<div class="w-full md:w-[600px] border-x border-gray-700 min-h-screen">
+    <!-- Encabezado -->
+    <div class="sticky top-0 z-10 bg-black bg-opacity-90 backdrop-blur-sm p-4 border-b border-gray-700">
+        <div class="flex items-center space-x-6">
+            <a href="{% url 'profile' username=profile_user.username %}" class="text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-xl font-bold">{{ profile_user.full_name }}</h1>
+                <p class="text-gray-500 text-sm">@{{ profile_user.username }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="flex border-b border-gray-700">
+        <a href="{% url 'followers_list' username=profile_user.username %}" 
+           class="flex-1 text-center py-4 font-bold border-b-4 border-twitter-blue">
+            Seguidores
+        </a>
+        <a href="{% url 'following_list' username=profile_user.username %}" 
+           class="flex-1 text-center py-4 text-gray-500 hover:bg-gray-900 hover:text-white transition">
+            Siguiendo
+        </a>
+    </div>
+
+    <!-- Lista de seguidores -->
+    <div>
+        {% for follower_user in followers %}
+        <div class="border-b border-gray-700 p-4 hover:bg-gray-900 transition">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'profile' username=follower_user.username %}" class="flex items-center space-x-3 flex-1">
+                    {% if follower_user.profile_picture %}
+                    <img src="{{ follower_user.profile_picture.url }}" 
+                         alt="Avatar" 
+                         class="w-12 h-12 rounded-full object-cover">
+                    {% else %}
+                    <img src="https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png" 
+                         alt="Avatar" 
+                         class="w-12 h-12 rounded-full object-cover">
+                    {% endif %}
+                    <div>
+                        <div class="font-bold hover:underline">{{ follower_user.full_name }}</div>
+                        <div class="text-gray-500">@{{ follower_user.username }}</div>
+                    </div>
+                </a>
+                
+                {% if request.user.is_authenticated and request.user != follower_user %}
+                <div>
+                    {% if follower_user in request.user.following.all %}
+                    <form action="{% url 'unfollow_user' username=follower_user.username %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" 
+                                class="bg-black text-white border border-gray-600 px-4 py-1 rounded-full font-bold hover:bg-gray-800 transition">
+                            Siguiendo
+                        </button>
+                    </form>
+                    {% else %}
+                    <form action="{% url 'follow_user' username=follower_user.username %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" 
+                                class="bg-white text-black px-4 py-1 rounded-full font-bold hover:bg-gray-200 transition">
+                            Seguir
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-8 text-center text-gray-500">
+            <p class="text-xl font-bold mb-2">
+                {% if request.user == profile_user %}
+                    Todavía no tienes seguidores
+                {% else %}
+                    @{{ profile_user.username }} no tiene seguidores
+                {% endif %}
+            </p>
+            <p>
+                {% if request.user == profile_user %}
+                    Cuando alguien te siga, aparecerán aquí.
+                {% else %}
+                    Cuando alguien lo siga, aparecerán aquí.
+                {% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

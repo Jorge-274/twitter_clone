@@ -212,3 +212,87 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tweet-submit').click();
     });
 });
+
+
+// ================== Buscador ==================
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    let debounceTimer;
+
+    // Manejador de eventos para el input
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        const query = e.target.value.trim();
+
+        if (query.length > 1) {  // Solo busca si hay al menos 2 caracteres
+            debounceTimer = setTimeout(() => {
+                fetchUsers(query);
+            }, 300);
+        } else {
+            searchResults.classList.add('hidden');
+        }
+    });
+
+    // Cerrar resultados al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!searchResults.contains(e.target) && e.target !== searchInput) {
+            searchResults.classList.add('hidden');
+        }
+    });
+
+    // Función para buscar usuarios
+    function fetchUsers(query) {
+        fetch(`/accounts/api/search/users/?q=${encodeURIComponent(query)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la búsqueda');
+                return response.json();
+            })
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                searchResults.innerHTML = `
+                    <div class="px-4 py-2 text-red-400">
+                        Error al buscar usuarios
+                    </div>
+                `;
+                searchResults.classList.remove('hidden');
+            });
+    }
+
+    // Mostrar resultados
+    function displayResults(users) {
+        if (users.length === 0) {
+            searchResults.innerHTML = `
+                <div class="px-4 py-2 text-gray-400">
+                    No se encontraron usuarios
+                </div>
+            `;
+            searchResults.classList.remove('hidden');
+            return;
+        }
+
+        let html = '';
+        users.forEach(user => {
+            const profilePic = user.profile_picture || '/static/images/default-profile.png';
+            html += `
+                <a href="/accounts/profile/${user.username}/" class="flex items-center px-4 py-3 hover:bg-gray-700 transition">
+                    <img src="${profilePic}"
+                         alt="${user.full_name}"
+                         class="w-10 h-10 rounded-full object-cover mr-3">
+                    <div>
+                        <div class="font-bold text-white">${user.full_name}</div>
+                        <div class="text-gray-400 text-sm">@${user.username}</div>
+                    </div>
+                </a>
+            `;
+        });
+
+        searchResults.innerHTML = html;
+        searchResults.classList.remove('hidden');
+    }
+});

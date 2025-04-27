@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar perfil - Twitter Clone{% endblock %}
+
+{% block content %}
+<div class="w-full md:w-[600px] border-x border-gray-700 min-h-screen">
+    <!-- Encabezado -->
+    <div class="sticky top-0 z-10 bg-black bg-opacity-90 backdrop-blur-sm p-4 border-b border-gray-700">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <a href="{% url 'profile' username=user.username %}" class="text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </a>
+                <h1 class="text-xl font-bold">Editar perfil</h1>
+            </div>
+            <button type="submit" form="profile-form" class="bg-white text-black px-4 py-1 rounded-full font-bold hover:bg-gray-200 transition">
+                Guardar
+            </button>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+    <div class="px-4 pt-2">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white px-4 py-2 rounded mb-4">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Formulario de edición -->
+    <form id="profile-form" method="POST" enctype="multipart/form-data" class="p-4">
+        {% csrf_token %}
+
+        <!-- Banner y avatar -->
+        <div class="relative mb-16">
+            <div class="h-48 bg-gray-700 w-full rounded-lg"></div>
+            <div class="absolute -bottom-16 left-4">
+                <label for="id_profile_picture" class="cursor-pointer">
+                    <div class="relative">
+                        <img src="{{ user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
+                             alt="Avatar"
+                             class="w-32 h-32 rounded-full border-4 border-black object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm5 3h2v2h2v2h-2v2h-2v-2H9v-2h2V9zm-3 5v2h6v-2H8z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    {{ form.profile_picture }}
+                </label>
+            </div>
+        </div>
+
+        <!-- Campos del formulario -->
+<div class="space-y-4">
+    <div>
+        <label for="id_full_name" class="block text-gray-300 mb-1">Nombre completo</label>
+        <input type="text" name="full_name" id="id_full_name"
+               value="{{ form.full_name.value|default:'' }}"
+               class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-twitter-blue focus:border-transparent placeholder-gray-500">
+        {% if form.full_name.errors %}
+            <div class="text-red-400 text-sm mt-1">{{ form.full_name.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_username" class="block text-gray-300 mb-1">Nombre de usuario</label>
+        <input type="text" name="username" id="id_username"
+               value="{{ form.username.value|default:'' }}"
+               class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-twitter-blue focus:border-transparent placeholder-gray-500">
+        {% if form.username.errors %}
+            <div class="text-red-400 text-sm mt-1">{{ form.username.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_email" class="block text-gray-300 mb-1">Correo electrónico</label>
+        <input type="email" name="email" id="id_email"
+               value="{{ form.email.value|default:'' }}"
+               class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-twitter-blue focus:border-transparent placeholder-gray-500">
+        {% if form.email.errors %}
+            <div class="text-red-400 text-sm mt-1">{{ form.email.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_bio" class="block text-gray-300 mb-1">Biografía</label>
+        <textarea name="bio" id="id_bio" rows="3"
+               class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-twitter-blue focus:border-transparent placeholder-gray-500">{{ form.bio.value|default:'' }}</textarea>
+        {% if form.bio.errors %}
+            <div class="text-red-400 text-sm mt-1">{{ form.bio.errors.0 }}</div>
+        {% endif %}
+    </div>
+</div>
+    </form>
+</div>
+
+<!-- Script para mostrar el nombre del archivo seleccionado -->
+<script>
+document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.querySelector('label[for="id_profile_picture"] img').src = event.target.result;
+        }
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+</script>
+{% endblock %}
