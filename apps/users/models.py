@@ -6,6 +6,15 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    email = models.EmailField(
+        unique=True,
+        blank=False,
+        null=False,
+        validators=[EmailValidator()],
+        error_messages={
+            'unique': "Ya existe un usuario con este email.",
+        },
+    )
 
     def __str__(self):
         return self.username
