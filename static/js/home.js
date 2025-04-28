@@ -163,7 +163,7 @@ async function handleTweetSubmit(e) {
     e.preventDefault();
 
     const textarea = document.getElementById('tweet-text');
-    let content = textarea.value.trim(); // <<-- solo tomamos el valor del textarea tal cual
+    let content = textarea.value.trim();
     const mediaFiles = document.getElementById('media-upload').files;
 
     if (!content) {
@@ -176,12 +176,19 @@ async function handleTweetSubmit(e) {
         const result = await response.json();
 
         if (response.ok) {
+            // Limpiar el formulario
             textarea.value = '';
             document.getElementById('media-upload').value = '';
             const preview = document.getElementById('image-preview');
             if (preview) preview.remove();
             uploadedImages = [];
             autoResize(textarea);
+
+            // Opción 1: Recargar la página para mostrar el nuevo tweet
+            window.location.reload();
+
+            // Opción 2: Alternativa sin recargar (añadir el tweet dinámicamente)
+            // addNewTweetToTimeline(result.tweet);
 
             console.log('Tweet publicado correctamente', result);
         } else {

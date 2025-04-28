@@ -1,74 +1,55 @@
-{% extends 'base.html' %}
+<!-- users/register.html -->
+{% extends 'base_auth.html' %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow overflow-hidden">
-    <!-- Banner y avatar -->
-    <div class="bg-twitter-blue h-32 relative">
-        <div class="absolute -bottom-16 left-4">
-            <img src="{{ profile_user.profile_picture.url|default:'https://via.placeholder.com/150' }}" 
-                 alt="Avatar" 
-                 class="w-32 h-32 rounded-full border-4 border-white">
+<div class="min-h-screen bg-black flex items-center justify-center p-4">
+    <div class="bg-gray-900 text-white rounded-lg p-8 w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6">Crear cuenta</h2>
+
+        {% if form.errors %}
+        <div class="mb-4 p-3 bg-red-900 text-red-200 rounded">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
         </div>
-    </div>
-    
-    <!-- Información del usuario -->
-    <div class="pt-20 px-6 pb-4">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h1 class="text-2xl font-bold">{{ profile_user.full_name }}</h1>
-                <p class="text-gray-600">@{{ profile_user.username }}</p>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <input name="username" type="text" placeholder="Nombre de usuario"
+                       class="w-full p-3 bg-black border border-gray-700 rounded placeholder-gray-400 text-white"
+                       value="{{ form.username.value|default:'' }}">
             </div>
-            
-            {% if user.is_authenticated and user != profile_user %}
-                <form action="{% if is_following %}{% url 'unfollow_user' username=profile_user.username %}{% else %}{% url 'follow_user' username=profile_user.username %}{% endif %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" 
-                            class="{% if is_following %}bg-white text-twitter-blue border border-twitter-blue{% else %}bg-twitter-blue text-white{% endif %} px-4 py-1 rounded-full font-bold hover:bg-opacity-90 transition">
-                        {% if is_following %}Siguiendo{% else %}Seguir{% endif %}
-                    </button>
-                </form>
-            {% endif %}
-        </div>
-        
-        <p class="mb-4">{{ profile_user.bio|default:"Este usuario no tiene biografía." }}</p>
-        
-        <!-- Seguidores/Siguiendo -->
-        <div class="flex space-x-4 text-sm mb-6">
-            <a href="{% url 'following_list' username=profile_user.username %}" class="hover:underline">
-                <span class="font-bold">{{ profile_user.following.count }}</span> Siguiendo
-            </a>
-            <a href="{% url 'followers_list' username=profile_user.username %}" class="hover:underline">
-                <span class="font-bold">{{ profile_user.followers.count }}</span> Seguidores
-            </a>
-        </div>
-    </div>
-    
-    <!-- Tweets del usuario -->
-    <div class="border-t border-gray-200">
-        <h2 class="px-6 py-3 font-bold text-lg">Tweets</h2>
-        
-        {% for tweet in tweets %}
-            <div class="border-t border-gray-200 px-6 py-4 hover:bg-gray-50 transition">
-                <div class="flex items-start space-x-3">
-                    <img src="{{ tweet.user.profile_picture.url|default:'https://via.placeholder.com/40' }}" 
-                         alt="Avatar" 
-                         class="w-10 h-10 rounded-full">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-1">
-                            <span class="font-bold">{{ tweet.user.full_name }}</span>
-                            <span class="text-gray-500">@{{ tweet.user.username }}</span>
-                            <span class="text-gray-500">·</span>
-                            <span class="text-gray-500">{{ tweet.created_at|timesince }}</span>
-                        </div>
-                        <p class="mt-1">{{ tweet.content }}</p>
-                    </div>
-                </div>
+
+            <div class="mb-4">
+                <input name="email" type="email" placeholder="Correo electrónico"
+                       class="w-full p-3 bg-black border border-gray-700 rounded placeholder-gray-400 text-white"
+                       value="{{ form.email.value|default:'' }}">
             </div>
-        {% empty %}
-            <div class="px-6 py-8 text-center text-gray-500">
-                Este usuario no ha publicado ningún tweet todavía.
+
+            <div class="mb-4">
+                <input name="password1" type="password" placeholder="Contraseña"
+                       class="w-full p-3 bg-black border border-gray-700 rounded placeholder-gray-400 text-white">
             </div>
-        {% endfor %}
+
+            <div class="mb-6">
+                <input name="password2" type="password" placeholder="Confirmar contraseña"
+                       class="w-full p-3 bg-black border border-gray-700 rounded placeholder-gray-400 text-white">
+            </div>
+
+            <button type="submit" class="w-full bg-twitter-blue text-white font-bold py-3 rounded-full hover:bg-twitter-dark transition">
+                Registrarse
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-gray-400">
+            ¿Ya tienes una cuenta?
+            <a href="{% url 'login' %}" class="text-twitter-blue hover:underline">Inicia sesión</a>
+        </p>
     </div>
 </div>
 {% endblock %}

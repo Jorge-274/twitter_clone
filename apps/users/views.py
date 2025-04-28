@@ -108,24 +108,26 @@ from .forms import UserRegistrationForm
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
-
         if form.is_valid():
-            # Crear el usuario
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.save()
 
-            # Loguear al usuario después del registro
             login(request, user)
+            messages.success(request, "¡Registro exitoso! Bienvenido/a.")
+            return redirect('home')
 
-            return redirect('home')  # O la página a la que quieras redirigir al usuario
-
+        # Si el formulario no es válido, se renderiza con los errores
+        messages.error(request, "Por favor corrige los errores en el formulario.")
     else:
         form = UserRegistrationForm()
 
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'users/register.html', {'form': form})
 
 
 # def profile_view(request, username):

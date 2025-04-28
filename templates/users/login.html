@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_auth.html' %}
 {% load static %}
 
 {% block title %}Bienvenido{% endblock %}
@@ -110,6 +110,37 @@
         modal.classList.remove('flex');
         modal.classList.add('hidden');
     }
+
+    function handleFormSubmit(formElement, modalId) {
+    formElement.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(formElement);
+        const response = await fetch(formElement.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            // Actualiza el modal con los errores
+            const errorContainer = document.querySelector(`#${modalId} .error-messages`);
+            errorContainer.innerHTML = data.errors.map(error => `<p>${error}</p>`).join('');
+        }
+    });
+}
+
+// Para cada formulario modal
+document.querySelectorAll('.modal-form').forEach(form => {
+    const modalId = form.closest('.modal').id;
+    handleFormSubmit(form, modalId);
+});
 </script>
 
 {% endblock %}

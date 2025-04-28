@@ -42,9 +42,13 @@
             <div class="absolute -bottom-16 left-4">
                 <label for="id_profile_picture" class="cursor-pointer">
                     <div class="relative">
-                        <img src="{{ user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
+                        {% if profile_user.profile_picture %}
+                            <img src="{{ profile_user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
                              alt="Avatar"
                              class="w-32 h-32 rounded-full border-4 border-black object-cover">
+                        {% else %}
+                                <img src="https://pbs.twimg.com/profile_images/1308769664240160770/AfgzWVE7_400x400.jpg" alt="Avatar" class="w-12 h-12 rounded-full object-cover">
+                        {% endif %}
                         <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition">
                             <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm5 3h2v2h2v2h-2v2h-2v-2H9v-2h2V9zm-3 5v2h6v-2H8z"/>

@@ -23,9 +23,13 @@
     <div class="relative">
         <div class="h-48 bg-gray-700 w-full"></div>
         <div class="absolute -bottom-16 left-4">
-            <img src="{{ profile_user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
+            {% if profile_user.profile_picture %}
+                <img src="{{ profile_user.profile_picture.url|default:'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png' }}"
                  alt="Avatar"
                  class="w-32 h-32 rounded-full border-4 border-black object-cover">
+            {% else %}
+                    <img src="https://pbs.twimg.com/profile_images/1308769664240160770/AfgzWVE7_400x400.jpg" alt="Avatar" class="w-12 h-12 rounded-full object-cover">
+            {% endif %}
         </div>
 
         {% if user == profile_user %}
